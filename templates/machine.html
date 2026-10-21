@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Machine — {{ 'Day' if phase == 'day' else 'Night' }}{% endblock %}
+{% block body_class %}casino-bg--{{ phase }}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/machine.css') }}" />
+{% endblock %}
+
+{% block content %}
+<section class="panel panel--machine" id="machine-root" data-phase="{{ phase }}">
+  <div class="machine-head">
+    <h1>Casino Machines</h1>
+    <span class="time-chip time-chip--{{ phase }}" id="time-chip">{{ 'DAY' if phase == 'day' else 'NIGHT' }}</span>
+  </div>
+  <p class="subtitle" id="phase-desc"></p>
+
+  <aside class="player-scoreboard" aria-live="polite">
+    <div>
+      <span class="player-scoreboard__label">플레이어 승리</span>
+      <strong class="player-scoreboard__value" id="player-total-wins">0</strong>
+    </div>
+    <p class="player-scoreboard__detail" id="player-total-detail">아직 플레이 기록이 없습니다.</p>
+    <p class="player-scoreboard__live" id="player-live">이번 플레이: 0승 / 0판</p>
+  </aside>
+
+  <div class="slots-row">
+    <article class="slot-machine" data-key="alpha">
+      <div class="slot-cabinet">
+        <div class="slot-body">
+          <div class="slot-machine__top">
+            <h2>Alpha Machine</h2>
+            <span class="slot-meta" id="alpha-meta"></span>
+          </div>
+          <div class="slot-window" aria-hidden="true">
+            <div class="reel"><div class="reel-strip"></div></div>
+            <div class="reel"><div class="reel-strip"></div></div>
+            <div class="reel"><div class="reel-strip"></div></div>
+          </div>
+          <div class="slot-payline"></div>
+          <p class="slot-result" id="alpha-result" aria-live="polite">레버를 당겨 시작하세요.</p>
+        </div>
+        <button type="button" class="slot-lever" data-key="alpha" aria-label="Alpha 레버 당기기">
+          <span class="slot-lever__knob"></span>
+          <span class="slot-lever__shaft"></span>
+          <span class="slot-lever__base"></span>
+        </button>
+      </div>
+    </article>
+
+    <article class="slot-machine" data-key="beta">
+      <div class="slot-cabinet">
+        <div class="slot-body">
+          <div class="slot-machine__top">
+            <h2>Beta Machine</h2>
+            <span class="slot-meta" id="beta-meta"></span>
+          </div>
+          <div class="slot-window" aria-hidden="true">
+            <div class="reel"><div class="reel-strip"></div></div>
+            <div class="reel"><div class="reel-strip"></div></div>
+            <div class="reel"><div class="reel-strip"></div></div>
+          </div>
+          <div class="slot-payline"></div>
+          <p class="slot-result" id="beta-result" aria-live="polite">레버를 당겨 시작하세요.</p>
+        </div>
+        <button type="button" class="slot-lever" data-key="beta" aria-label="Beta 레버 당기기">
+          <span class="slot-lever__knob"></span>
+          <span class="slot-lever__shaft"></span>
+          <span class="slot-lever__base"></span>
+        </button>
+      </div>
+    </article>
+  </div>
+
+  <div class="machine-progress-wrap" id="progress-wrap" hidden>
+    <div class="machine-progress-label" id="progress-label">0 / 0</div>
+    <div class="machine-progress"><div class="machine-progress__bar" id="progress-bar"></div></div>
+  </div>
+
+  <div class="panel-actions machine-actions">
+    <button type="button" id="time-advance" class="btn-casino btn-casino--button" disabled>밤으로 전환</button>
+    <a href="{{ url_for('dice') }}" class="btn-casino btn-secondary">Dice로 돌아가기</a>
+  </div>
+</section>
+
+<div id="time-transition" class="time-transition" hidden aria-hidden="true">
+  <div class="timelapse">
+    <div class="timelapse__sky"></div>
+    <div class="timelapse__glow"></div>
+    <div class="timelapse__sun"></div>
+    <div class="timelapse__moon"></div>
+    <div class="timelapse__stars" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="timelapse__city" aria-hidden="true">
+      <span class="b b1"></span>
+      <span class="b b2"></span>
+      <span class="b b3"></span>
+      <span class="b b4"></span>
+      <span class="b b5"></span>
+      <span class="b b6"></span>
+      <span class="neon">CASINO</span>
+    </div>
+  </div>
+  <p class="time-transition__caption" id="transition-caption">시간이 빠르게 흐릅니다.</p>
+</div>
+
+<script type="module" src="{{ url_for('static', filename='js/machine.js') }}"></script>
+{% endblock %}

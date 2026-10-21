@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.codegraph/
+.venv/
+.env
+.flaskenv
+machine-*.png
