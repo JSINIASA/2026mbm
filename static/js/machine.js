@@ -1,5 +1,7 @@
 const SYMBOLS = ["7", "BAR", "◆", "♣", "♦"];
 const RECORD_KEY = "machine-player-record";
+const EMPTY_RECORD = { wins: 0, rounds: 0, alphaWins: 0, betaWins: 0 };
+const TRANSITION_MS = 4200;
 
 const PHASES = {
   day: {
@@ -47,11 +49,12 @@ function setReelSymbols(reels, symbols, win) {
       mid.textContent = symbols[i];
       mid.classList.toggle("reel-symbol--win", win);
     }
+    strip.style.transition = "none";
     strip.style.transform = "translateY(0)";
   });
 }
 
-async function spinReels(reels, win, durationMs = 420) {
+function outcomeSymbols(win) {
   const target = win
     ? [SYMBOLS[0], SYMBOLS[0], SYMBOLS[0]]
     : [randomSymbol(), randomSymbol(), randomSymbol()];
@@ -60,6 +63,11 @@ async function spinReels(reels, win, durationMs = 420) {
       target[2] = randomSymbol();
     }
   }
+  return target;
+}
+
+async function spinReels(reels, win, durationMs = 280) {
+  const target = outcomeSymbols(win);
 
   reels.forEach((reel) => {
     const strip = reel.querySelector(".reel-strip");
@@ -77,8 +85,26 @@ async function spinReels(reels, win, durationMs = 420) {
     strip.style.transform = `translateY(-${offset}rem)`;
   });
 
-  await sleep(durationMs + 40);
+  await sleep(durationMs + 30);
   setReelSymbols(reels, target, win);
+}
+
+function startFastSpin(reels) {
+  reels.forEach((reel) => {
+    const strip = reel.querySelector(".reel-strip");
+    strip.querySelectorAll(".reel-symbol").forEach((c) => c.classList.remove("reel-symbol--win"));
+    buildReelStrip(strip, 24);
+    strip.style.transition = "none";
+    strip.style.transform = "translateY(0)";
+    strip.classList.add("is-blur-spinning");
+  });
+}
+
+function stopFastSpin(reels, win) {
+  reels.forEach((reel) => {
+    reel.querySelector(".reel-strip").classList.remove("is-blur-spinning");
+  });
+  setReelSymbols(reels, outcomeSymbols(win), win);
 }
 
 function simulateOutcomes(rounds, winProb) {
@@ -100,11 +126,18 @@ function getPlayerRecord() {
   try {
     const stored = window.localStorage.getItem(RECORD_KEY);
     const parsed = stored ? JSON.parse(stored) : null;
-    if (parsed && typeof parsed.wins === "number") return parsed;
+    if (parsed && typeof parsed.wins === "number") {
+      return {
+        wins: parsed.wins,
+        rounds: parsed.rounds || 0,
+        alphaWins: parsed.alphaWins || 0,
+        betaWins: parsed.betaWins || 0,
+      };
+    }
   } catch {
     /* ignore */
   }
-  return { wins: 0, rounds: 0, alphaWins: 0, betaWins: 0 };
+  return { ...EMPTY_RECORD };
 }
 
 function savePlayerRecord(record) {
@@ -138,6 +171,7 @@ function init() {
   const playerTotalWins = document.getElementById("player-total-wins");
   const playerTotalDetail = document.getElementById("player-total-detail");
   const playerLive = document.getElementById("player-live");
+  const resetBtn = document.getElementById("player-record-reset");
   const levers = document.querySelectorAll(".slot-lever");
 
   desc.textContent = cfg.title;
@@ -176,15 +210,22 @@ function init() {
     timeAdvance.disabled = busy || !(ranAlpha || ranBeta);
   };
 
+  resetBtn.addEventListener("click", () => {
+    savePlayerRecord({ ...EMPTY_RECORD });
+    renderScoreboard();
+  });
+
   async function runMachine(key, lever) {
     if (busy) return;
     const spec = cfg[key];
     const machine = document.querySelector(`.slot-machine[data-key="${key}"]`);
     const resultEl = key === "alpha" ? alphaResult : betaResult;
     const reels = [...machine.querySelectorAll(".reel")];
+    const fast = spec.rounds >= 40;
 
     busy = true;
     machine.classList.add("is-running");
+    if (fast) machine.classList.add("is-fast");
     pullLever(lever);
     setLeversDisabled(true);
     timeAdvance.disabled = true;
@@ -193,19 +234,38 @@ function init() {
     progressBar.style.width = "0%";
 
     const { outcomes, wins, rounds } = simulateOutcomes(spec.rounds, spec.target);
-    const spinMs = rounds <= 10 ? 380 : 120;
-    const batchPause = rounds <= 10 ? 180 : 28;
     let liveWins = 0;
 
-    for (let i = 0; i < rounds; i++) {
-      const won = outcomes[i];
-      if (won) liveWins += 1;
-      progressLabel.textContent = `${i + 1} / ${rounds}판 · 이번 승리 ${liveWins}회`;
-      progressBar.style.width = `${((i + 1) / rounds) * 100}%`;
-      resultEl.textContent = won ? `${i + 1}판 승리` : `${i + 1}판 패배`;
-      renderScoreboard(liveWins, i + 1);
-      await spinReels(reels, won, spinMs);
-      await sleep(batchPause);
+    if (fast) {
+      startFastSpin(reels);
+      const started = performance.now();
+      const budgetMs = 900;
+      for (let i = 0; i < rounds; i++) {
+        if (outcomes[i]) liveWins += 1;
+        if (i % 4 === 0 || i === rounds - 1) {
+          progressLabel.textContent = `${i + 1} / ${rounds}판 · 이번 승리 ${liveWins}회`;
+          progressBar.style.width = `${((i + 1) / rounds) * 100}%`;
+          resultEl.textContent = `${i + 1}판 · ${liveWins}승`;
+          renderScoreboard(liveWins, i + 1);
+        }
+        const elapsed = performance.now() - started;
+        const expected = ((i + 1) / rounds) * budgetMs;
+        if (expected > elapsed) await sleep(expected - elapsed);
+      }
+      stopFastSpin(reels, outcomes[rounds - 1]);
+      progressLabel.textContent = `${rounds} / ${rounds}판 · 이번 승리 ${liveWins}회`;
+      progressBar.style.width = "100%";
+    } else {
+      const spinMs = 260;
+      for (let i = 0; i < rounds; i++) {
+        const won = outcomes[i];
+        if (won) liveWins += 1;
+        progressLabel.textContent = `${i + 1} / ${rounds}판 · 이번 승리 ${liveWins}회`;
+        progressBar.style.width = `${((i + 1) / rounds) * 100}%`;
+        resultEl.textContent = won ? `${i + 1}판 승리` : `${i + 1}판 패배`;
+        renderScoreboard(liveWins, i + 1);
+        await spinReels(reels, won, spinMs);
+      }
     }
 
     const rate = wins / rounds;
@@ -224,7 +284,7 @@ function init() {
     else ranBeta = true;
 
     busy = false;
-    machine.classList.remove("is-running");
+    machine.classList.remove("is-running", "is-fast");
     setLeversDisabled(false);
     updateAdvance();
   }
@@ -239,11 +299,15 @@ function init() {
     timeAdvance.disabled = true;
     setLeversDisabled(true);
 
+    const dir = phase === "day" ? "is-day-to-night" : "is-night-to-day";
     transition.hidden = false;
-    transition.classList.remove("is-night-to-day", "is-day-to-night");
-    transition.classList.add("is-active", phase === "day" ? "is-day-to-night" : "is-night-to-day");
-    await sleep(3400);
-    window.location.href = cfg.nextPath;
+    transition.setAttribute("aria-hidden", "false");
+    transition.classList.remove("is-active", "is-night-to-day", "is-day-to-night");
+    void transition.offsetWidth;
+    transition.classList.add("is-active", dir);
+
+    await sleep(TRANSITION_MS);
+    window.location.assign(cfg.nextPath);
   });
 
   updateAdvance();

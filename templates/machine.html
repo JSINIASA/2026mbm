@@ -10,15 +10,21 @@
 {% block content %}
 <section class="panel panel--machine" id="machine-root" data-phase="{{ phase }}">
   <div class="machine-head">
-    <h1>Casino Machines</h1>
+    <div>
+      <p class="eyebrow">Private salon</p>
+      <h1>Casino Machines</h1>
+    </div>
     <span class="time-chip time-chip--{{ phase }}" id="time-chip">{{ 'DAY' if phase == 'day' else 'NIGHT' }}</span>
   </div>
   <p class="subtitle" id="phase-desc"></p>
 
   <aside class="player-scoreboard" aria-live="polite">
-    <div>
-      <span class="player-scoreboard__label">플레이어 승리</span>
-      <strong class="player-scoreboard__value" id="player-total-wins">0</strong>
+    <div class="player-scoreboard__row">
+      <div class="player-scoreboard__stat">
+        <span class="player-scoreboard__label">플레이어 승리</span>
+        <strong class="player-scoreboard__value" id="player-total-wins">0</strong>
+      </div>
+      <button type="button" class="btn-reset" id="player-record-reset">리셋</button>
     </div>
     <p class="player-scoreboard__detail" id="player-total-detail">아직 플레이 기록이 없습니다.</p>
     <p class="player-scoreboard__live" id="player-live">이번 플레이: 0승 / 0판</p>
@@ -28,6 +34,7 @@
     <article class="slot-machine" data-key="alpha">
       <div class="slot-cabinet">
         <div class="slot-body">
+          <div class="slot-marquee" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           <div class="slot-machine__top">
             <h2>Alpha Machine</h2>
             <span class="slot-meta" id="alpha-meta"></span>
@@ -51,6 +58,7 @@
     <article class="slot-machine" data-key="beta">
       <div class="slot-cabinet">
         <div class="slot-body">
+          <div class="slot-marquee" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           <div class="slot-machine__top">
             <h2>Beta Machine</h2>
             <span class="slot-meta" id="beta-meta"></span>
@@ -85,8 +93,9 @@
 
 <div id="time-transition" class="time-transition" hidden aria-hidden="true">
   <div class="timelapse">
-    <div class="timelapse__sky"></div>
-    <div class="timelapse__glow"></div>
+    <div class="timelapse__layer timelapse__layer--day"></div>
+    <div class="timelapse__layer timelapse__layer--dusk"></div>
+    <div class="timelapse__layer timelapse__layer--night"></div>
     <div class="timelapse__sun"></div>
     <div class="timelapse__moon"></div>
     <div class="timelapse__stars" aria-hidden="true">
