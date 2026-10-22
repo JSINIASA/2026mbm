@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
@@ -10,20 +10,29 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@360;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/casino.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/casino.css') }}"
+    />
     {% block head %}{% endblock %}
   </head>
   <body class="casino-bg {% block body_class %}{% endblock %}">
     <div class="casino-overlay"></div>
     <header class="site-header">
-      <span class="logo">Efron's Dice</span>
+      <span class="logo">Majeon Casino : STAGE 2, 5</span>
       <nav class="nav">
-        <a href="{{ url_for('dice') }}" class="nav-link {% if active == 'dice' %}active{% endif %}">Dice</a>
-        <a href="{{ url_for('machine_day') }}" class="nav-link {% if active == 'machine' %}active{% endif %}">Machine</a>
+        <a
+          href="{{ url_for('dice') }}"
+          class="nav-link {% if active == 'dice' %}active{% endif %}"
+          >Dice</a
+        >
+        <a
+          href="{{ url_for('machine_day') }}"
+          class="nav-link {% if active == 'machine' %}active{% endif %}"
+          >Machine</a
+        >
       </nav>
     </header>
-    <main class="content">
-      {% block content %}{% endblock %}
-    </main>
+    <main class="content">{% block content %}{% endblock %}</main>
   </body>
 </html>
