@@ -4,7 +4,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { DiceAudio } from "./dice-sound.js";
 
 const EFRON_DICE = [
-  { id: "A", faces: [4, 4, 4, 0, 0, 0], tint: 0xe8dcc8 },
+  { id: "A", faces: [4, 4, 4, 4, 0, 0], tint: 0xe8dcc8 },
   { id: "B", faces: [3, 3, 3, 3, 3, 3], tint: 0xc9ddf0 },
   { id: "C", faces: [6, 6, 2, 2, 2, 2], tint: 0xf0c9c9 },
   { id: "D", faces: [5, 5, 5, 1, 1, 1], tint: 0xd4f0c9 },
@@ -38,7 +38,10 @@ function makeFaceTexture(value, tintHex) {
   const g = (tintHex >> 8) & 255;
   const b = tintHex & 255;
   const grad = ctx.createLinearGradient(0, 0, size, size);
-  grad.addColorStop(0, `rgb(${Math.min(255, r + 30)}, ${Math.min(255, g + 30)}, ${Math.min(255, b + 30)})`);
+  grad.addColorStop(
+    0,
+    `rgb(${Math.min(255, r + 30)}, ${Math.min(255, g + 30)}, ${Math.min(255, b + 30)})`,
+  );
   grad.addColorStop(1, `rgb(${r}, ${g}, ${b})`);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
@@ -66,7 +69,7 @@ function createDieMesh(faces, tint) {
         roughness: 0.45,
         metalness: 0.08,
         emissive: new THREE.Color(0x000000),
-      })
+      }),
   );
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), materials);
   mesh.castShadow = true;
@@ -98,7 +101,10 @@ function getTopFaceValue(mesh, faces) {
 function homeTransform(index) {
   const x = (index - 1.5) * 2.35;
   const yaw = (index - 1.5) * 0.25;
-  const quat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+  const quat = new THREE.Quaternion().setFromAxisAngle(
+    new THREE.Vector3(0, 1, 0),
+    yaw,
+  );
   return {
     position: new THREE.Vector3(x, 0, 0),
     quaternion: quat,
@@ -107,7 +113,12 @@ function homeTransform(index) {
 
 function syncMeshFromBody(mesh, body) {
   mesh.position.set(body.position.x, body.position.y, body.position.z);
-  mesh.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+  mesh.quaternion.set(
+    body.quaternion.x,
+    body.quaternion.y,
+    body.quaternion.z,
+    body.quaternion.w,
+  );
 }
 
 function applyHomeToBody(body, index) {
@@ -117,7 +128,7 @@ function applyHomeToBody(body, index) {
     home.quaternion.x,
     home.quaternion.y,
     home.quaternion.z,
-    home.quaternion.w
+    home.quaternion.w,
   );
   body.velocity.set(0, 0, 0);
   body.angularVelocity.set(0, 0, 0);
@@ -182,7 +193,7 @@ function initScene(container, audio) {
 
   const table = new THREE.Mesh(
     new THREE.CircleGeometry(7, 64),
-    new THREE.MeshStandardMaterial({ color: 0x062419, roughness: 0.9 })
+    new THREE.MeshStandardMaterial({ color: 0x062419, roughness: 0.9 }),
   );
   table.rotation.x = -Math.PI / 2;
   table.position.y = TABLE_Y;
@@ -202,19 +213,19 @@ function initScene(container, audio) {
     new CANNON.ContactMaterial(matDie, matTable, {
       friction: 0.45,
       restitution: 0.35,
-    })
+    }),
   );
   world.addContactMaterial(
     new CANNON.ContactMaterial(matDie, matDie, {
       friction: 0.4,
       restitution: 0.42,
-    })
+    }),
   );
   world.addContactMaterial(
     new CANNON.ContactMaterial(matDie, matWall, {
       friction: 0.35,
       restitution: 0.25,
-    })
+    }),
   );
 
   const tableBody = new CANNON.Body({
@@ -300,7 +311,9 @@ function initScene(container, audio) {
   }
 
   function isSettled(body) {
-    return body.velocity.length() < 0.25 && body.angularVelocity.length() < 0.55;
+    return (
+      body.velocity.length() < 0.25 && body.angularVelocity.length() < 0.55
+    );
   }
 
   function frame() {
@@ -350,22 +363,22 @@ function initScene(container, audio) {
     body.position.set(
       ROLL_CENTER.x + (Math.random() - 0.5) * 0.35,
       2.8 + Math.random() * 0.6,
-      ROLL_CENTER.z + (Math.random() - 0.5) * 0.35
+      ROLL_CENTER.z + (Math.random() - 0.5) * 0.35,
     );
     body.quaternion.setFromEuler(
       Math.random() * Math.PI * 2,
       Math.random() * Math.PI * 2,
-      Math.random() * Math.PI * 2
+      Math.random() * Math.PI * 2,
     );
     body.velocity.set(
       (Math.random() - 0.5) * 3.5,
       -2 - Math.random() * 2,
-      (Math.random() - 0.5) * 3.5
+      (Math.random() - 0.5) * 3.5,
     );
     body.angularVelocity.set(
       (Math.random() - 0.5) * 28,
       (Math.random() - 0.5) * 28,
-      (Math.random() - 0.5) * 28
+      (Math.random() - 0.5) * 28,
     );
     syncMeshFromBody(entry.mesh, body);
 
