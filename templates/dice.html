@@ -1,8 +1,5 @@
-{% extends "base.html" %}
-
-{% block title %}Dice — Efron's Dice{% endblock %}
-
-{% block head %}
+{% extends "base.html" %} {% block title %}Dice — Efron's Dice{% endblock %} {%
+block head %}
 <script type="importmap">
   {
     "imports": {
@@ -12,13 +9,13 @@
     }
   }
 </script>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <section class="panel panel--dice">
   <p class="eyebrow">Salon table</p>
   <h1>Efron's Dice</h1>
-  <p class="subtitle">주사위 A~D 중 하나를 선택한 뒤 굴리기 · 드래그로 시점 회전</p>
+  <p class="subtitle">
+    주사위 A~D 중 하나를 선택한 뒤 굴리기 · 드래그로 시점 회전
+  </p>
 
   <ul class="dice-legend" aria-label="주사위 면 구성">
     <li><span class="die-tag">A</span> 4, 4, 4, 0, 0, 0</li>
@@ -27,29 +24,71 @@
     <li><span class="die-tag">D</span> 5, 5, 5, 1, 1, 1</li>
   </ul>
 
-  <div id="dice-viz" class="viz-stage viz-stage--3d" aria-label="Efron dice 3D visualization"></div>
-  <p id="roll-result" class="roll-result" aria-live="polite">먼저 주사위 A~D 중 하나를 선택하세요.</p>
+  <div
+    id="dice-viz"
+    class="viz-stage viz-stage--3d"
+    aria-label="Efron dice 3D visualization"
+  ></div>
+  <p id="roll-result" class="roll-result" aria-live="polite">
+    먼저 주사위 A~D 중 하나를 선택하세요.
+  </p>
 
   <div class="dice-select" role="radiogroup" aria-label="굴릴 주사위 선택">
-    <button type="button" class="btn-die-select" data-die-index="0" role="radio" aria-checked="false">
+    <button
+      type="button"
+      class="btn-die-select"
+      data-die-index="0"
+      role="radio"
+      aria-checked="false"
+    >
       <span class="die-tag">A</span> 4·4·4·0·0·0
     </button>
-    <button type="button" class="btn-die-select" data-die-index="1" role="radio" aria-checked="false">
-      <span class="die-tag">B</span> 3×6
+    <button
+      type="button"
+      class="btn-die-select"
+      data-die-index="1"
+      role="radio"
+      aria-checked="false"
+    >
+      <span class="die-tag">B</span> 3·3·3·3·3·3
     </button>
-    <button type="button" class="btn-die-select" data-die-index="2" role="radio" aria-checked="false">
+    <button
+      type="button"
+      class="btn-die-select"
+      data-die-index="2"
+      role="radio"
+      aria-checked="false"
+    >
       <span class="die-tag">C</span> 6·6·2·2·2·2
     </button>
-    <button type="button" class="btn-die-select" data-die-index="3" role="radio" aria-checked="false">
+    <button
+      type="button"
+      class="btn-die-select"
+      data-die-index="3"
+      role="radio"
+      aria-checked="false"
+    >
       <span class="die-tag">D</span> 5·5·5·1·1·1
     </button>
   </div>
 
   <div class="panel-actions">
-    <button type="button" id="roll-btn" class="btn-casino btn-casino--button" disabled>굴리기</button>
-    <a href="{{ url_for('machine_day') }}" class="btn-casino btn-secondary">Machine으로 이동</a>
+    <button
+      type="button"
+      id="roll-btn"
+      class="btn-casino btn-casino--button"
+      disabled
+    >
+      굴리기
+    </button>
+    <a href="{{ url_for('machine_day') }}" class="btn-casino btn-secondary"
+      >Machine으로 이동</a
+    >
   </div>
 </section>
 
-<script type="module" src="{{ url_for('static', filename='js/dice-scene.js') }}"></script>
+<script
+  type="module"
+  src="{{ url_for('static', filename='js/dice-scene.js') }}"
+></script>
 {% endblock %}
